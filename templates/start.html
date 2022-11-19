@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form class="form-signin" method="POST" action="{% url 'home'%}">
+{% csrf_token %}
+<label for="access" style="font-size:20px">Access Key</label>
+<input type="text" name="access" class="form-styling" placeholder="user1" style="font-size:20px">
+<label for="secret" style="font-size:20px">Secret Key</label>
+<input type="password" name="secret" class="form-styling" placeholder="12345678" style="font-size:20px">
+<button type="submit" value="log_in" style="font-size:20px">Войти</button>
+</form>
+
+{% endblock %}

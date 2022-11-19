@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <a href="{% url 'home' %}"> <button style="font-size:20px;"> Назад </button> </a>
+    <br><a>Имя файла: {{ object_name }}</a>
+    <br><a>Размер файла: {{ object_info.size }} байт</a>
+    <br><a>Дата последнего изменения: {{ object_info.last_modified }}</a>
+
+      {% with 'video/'|add:object_name as fp_static %}
+      <br><video width="400" height="300" controls="controls" preload="auto">
+       <source src="{% static fp_static %}" type='video/mp4'>
+       Тег video не поддерживается вашим браузером.
+       <a href="{% static fp_static %}">Скачайте видео</a>
+      </video>
+      {% endwith %}
+
+    <br>
+    <form action="{% url 'model_form_edit' object_name%}" method="post">
+    {% csrf_token %}
+     <button type="submit"}>Редактировать</button>
+     </form>
+
+    <br>
+    <form action="{% url 'deleted' object_name%}" method="post">
+    {% csrf_token %}
+     <button type="submit" name='delete_object' value={{object_name}}>Удалить объект</button>
+     </form>
+
+{% endblock %}

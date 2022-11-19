@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <a href="{% url 'start' %}"> <button style="font-size:20px;"> Выйти </button> </a>
+  <br><a href="{% url 'model_form_upload' %}" style="font-size: 20px">Загрузить файл</a>
+
+  <p style="font-size:20px;">Загруженные файлы:</p>
+  <ul>
+      {% for object in objects %}
+      <br><li>
+      <a href="{% url 'object' object.object_name %}">{{ object.object_name}}</a>
+        <br><a>Размер файла: {{ object.size }} байт</a>
+        <br><a>Дата последнего изменения: {{ object.last_modified }}</a>
+
+      </li>
+      {% empty %}
+        <li>Список пуст</li>
+    {% endfor %}
+  </ul>
+
+
+{% endblock %}
