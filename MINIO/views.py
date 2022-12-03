@@ -6,10 +6,31 @@ from minio import Minio
 import os
 import time
 import glob
+from django.http import JsonResponse, HttpResponse
+import json
+import ast
+import datetime
+import pytz
+from django.conf import settings
+
+
+GlobalData = {
+    'last_date': 0
+}
+GD=0
+
+def global_data_update(request):
+  global GD
+  newdata=request.POST.get('date')
+  body=str(request.body)
+  body=(body.replace(' ', ''))[2:-1]
+  rawdate=int(body)
+  GD=rawdate
+
+  return JsonResponse({})
 
 
 def start(request):
-
   return render(request, 'start.html')
 
 
@@ -73,7 +94,31 @@ def model_form_upload(request):
 def model_form_edit(request, name):
   clean_static()
   if request.method == 'POST':
+    global GD
     form = MyDocumentForm(request.POST, request.FILES)
+
+    if (request.FILES):
+      newdoc = MyDocument(doc=request.FILES['fileList'])
+      newdoc.save()
+      for filename, file in request.FILES.items():
+        fname = request.FILES[filename].name
+      # request.session['filename'] = fname
+
+      access = request.session.get('access')
+      client = Minio(endpoint="localhost:9000", access_key=access, secret_key=request.session.get('secret'), secure=False)
+      filepath = "MINIO/static/video/" + fname
+
+      object_info = client.stat_object(access, name)
+      utc = pytz.UTC
+      last_date_modified = object_info.last_modified
+      new_date_modified = utc.localize(datetime.datetime.fromtimestamp(GD / 1e3))
+
+      if (last_date_modified < new_date_modified):
+        client.fput_object(access, name, filepath)
+        return redirect('home')
+      else:
+        return redirect('sync_error', name)
+
     if form.is_valid():
       newdoc = MyDocument(doc=request.FILES['doc'])
       newdoc.save()
@@ -102,8 +147,24 @@ def deleted(request, name):
 
   return render(request, 'deleted.html', {'name': name})
 
+
+def sync_error(request, name):
+  return render(request, 'sync_error.html', {'name': name})
+
+
 def clean_static():
   files = glob.glob('MINIO/static/video/*')
   for f in files:
     os.remove(f)
   return
+
+
+def download(request, file_name):
+  file_path = settings.MEDIA_ROOT + '/' + file_name
+  response = HttpResponse(open(file_path, 'rb').read())
+  response['X-Sendfile'] = file_path
+  response['Content-Length'] = os.stat(file_path).st_size
+  response['Content-Disposition'] = 'attachment; filename='+file_name
+  response['Content-Type'] = 'video/mp4'
+
+  return response

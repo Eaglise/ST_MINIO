@@ -27,4 +27,7 @@ urlpatterns = [
     path('upload/', views.model_form_upload, name='model_form_upload'),
     path('edit/<str:name>/', views.model_form_edit, name='model_form_edit'),
     path('home/delete/<str:name>/', views.deleted, name='deleted'),
+    path('home/sync_error/<str:name>/', views.sync_error, name='sync_error'),
+    path('download/<str:file_name>/', views.download, name='download'),
+    path('data_update/', views.global_data_update, name='data_update'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

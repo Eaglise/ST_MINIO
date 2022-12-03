@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <a href="{% url 'home' %}"> <button style="font-size:20px;"> На главную </button> </a>
+    <br><a style="font-size:20px;">Ошибка синхронизации! Изменение файла {{ name }} отклонено!</a>
+
+{% endblock %}
